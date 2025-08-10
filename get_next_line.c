@@ -5,14 +5,24 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: adlabban <adlabban@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/08 16:59:01 by adlabban          #+#    #+#             */
-/*   Updated: 2025/08/09 17:19:57 by adlabban         ###   ########.fr       */
+/*   Created: 2025/08/09 18:57:40 by adlabban          #+#    #+#             */
+/*   Updated: 2025/08/10 15:45:15 by adlabban         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int ft_have_line(char *stash)
+int ft_strlen(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i] != '\0')
+		i++;
+	return (i);
+}
+
+int line_find(char *stash)
 {
 	int i;
 
@@ -26,32 +36,71 @@ int ft_have_line(char *stash)
 	return (0);
 }
 
-int count_len(char *stash)
+char *ft_init_stash(char *stash)
 {
+	stash = malloc(1);
+	if (!stash)
+		return (NULL);
+	stash[0] = '\0';
+	return (stash);
+}
+
+char *ft_strjoin(char *stash, char *buf)
+{
+	char *str;
 	int i;
+	int j;
+
+	str = malloc(sizeof(char) * (ft_strlen(stash) + ft_strlen(buf) + 1));
+	if (!str)
+		return (NULL);
+	i = 0;
+	while (stash[i] != '\0')
+	{
+		str[i] = stash[i];
+		i++;
+	}
+	j = 0;
+	while (buf[j] != '\0')
+	{
+		str[i] = buf[j];
+		i++;
+		j++;
+	}
+	str[i] = '\0';
+	return (str);
+}
+
+int	get_len_line(char *stash)
+{
+	int	i;
 
 	i = 0;
 	while (stash[i] != '\0')
 	{
 		if (stash[i] == '\n')
-			return (i);
+			return (i + 1);
 		i++;
 	}
 	return (i);
 }
 
-char *get_line(char *stash)
+
+char *ft_get_line(char *stash)
 {
-	char *line;
-	int i;
+	char	*line;
+	int		i;
 	int size;
 
-	i = 0;
-	size = count_len(stash);
-	line = malloc(sizeof(char) * (size + 2));
+	if (!line_find(stash))
+		size = ft_strlen(stash);
+	else
+		size = get_len_line(stash);
+	line = malloc(sizeof(char) * (size + 1));
 	if (!line)
 		return (NULL);
-	while (i <= size)
+	i = 0;
+	while (i < size)
 	{
 		line[i] = stash[i];
 		i++;
@@ -60,51 +109,76 @@ char *get_line(char *stash)
 	return (line);
 }
 
+char	*get_new_stash(char *stash)
+{
+	char *new_stash;
+	int	i;
+	int size;
+	int	j;
+
+	size = ft_strlen(stash) - get_len_line(stash);
+	new_stash = malloc(sizeof(char) * (size + 1));
+	if (!new_stash)
+		return (NULL);
+	i = 0;
+	j = get_len_line(stash);
+	while (i < size)
+	{
+		new_stash[i] = stash[j + i];
+		i++;
+	}
+	new_stash[i] = '\0';
+	return (new_stash);
+}
+
 char *get_next_line(int fd)
 {
-	char *line;
-	char *buf;
-	static char *stash;
-	int i;
+	char		*buf;
+	static char	*stash;
+	int			i;
+	char		*tmp;
+	char		*line;
 
-	i = 1;
 	buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buf)
 		return (NULL);
-	i = read(fd, buf, BUFFER_SIZE);
-	if (i == -1)
-		return (NULL);
-	stash = ft_strjoin(stash, buf);
-	while (!ft_have_line(stash) && i != 0 && i >= BUFFER_SIZE)
+	if (!stash)
+	{
+		stash = ft_init_stash(stash);
+		if (!stash)
+		{
+			free(buf);
+			return (NULL);
+		}
+	}
+	i = 1;
+	while (!line_find(stash) && i > 0)
 	{
 		i = read(fd, buf, BUFFER_SIZE);
 		if (i == -1)
+		{
+			free(stash);
+			stash = NULL;
+			free(buf);
 			return (NULL);
-		stash = ft_strjoin(stash, buf);
+		}
+		buf[i] = '\0';
+		tmp = stash;
+		stash = ft_strjoin(tmp, buf);
+		free(tmp);
+		if (!stash || stash[0] == '\0')
+		{
+			free(stash);
+			stash = NULL;
+			free(buf);
+			return (NULL);
+		}
+
 	}
-	line = get_line(stash);
-	stash = empty_stash(stash);
+	line = ft_get_line(stash);
+	tmp = stash;
+	stash = get_new_stash(tmp);
+	free(tmp);
+	free(buf);
 	return (line);
 }
-
-// #include <fcntl.h>
-// #include <stdio.h>
-// int main(int ac, char **av)
-// {
-// 	int fd1;
-// 	int fd2;
-// 	if (ac == 2)
-// 	{
-// 		fd1 = open(av[1], O_RDONLY);
-// 		if (fd1 == -1)
-// 			printf("Error ouverture");
-// 		fd2 = open(av[1], O_RDONLY);
-// 		if (fd2 == -1)
-// 			printf("Error ouverture");
-
-// 		printf("%s", get_next_line(fd1));
-// 		close(fd1);
-// 		close(fd2);
-
-// 	}
-// }

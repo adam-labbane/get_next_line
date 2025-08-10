@@ -1,25 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: adlabban <adlabban@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/08 12:24:27 by adlabban          #+#    #+#             */
-/*   Updated: 2025/08/10 11:39:02 by adlabban         ###   ########.fr       */
+/*   Created: 2025/08/10 11:38:13 by adlabban          #+#    #+#             */
+/*   Updated: 2025/08/10 15:28:04 by adlabban         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GNL_H
-# define GNL_H
+#include "get_next_line.h"
+#include <fcntl.h>
+int main(int ac, char **av)
+{
+	char *str;
+	int fd;
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 42
-#endif
-
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-char *get_next_line(int fd);
-
-#endif
+	if (ac == 2)
+	{
+		fd = open(av[1], O_RDONLY);
+		if (fd == -1)
+		{
+			printf("erreur ouverture");
+			return (1);
+		}
+		str = get_next_line(fd);
+		printf("%s", str);
+		str = get_next_line(fd);
+		printf("%s", str);
+		free(str);
+	}
+}
