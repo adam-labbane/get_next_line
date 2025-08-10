@@ -6,16 +6,17 @@
 /*   By: adlabban <adlabban@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 11:38:13 by adlabban          #+#    #+#             */
-/*   Updated: 2025/08/10 15:28:04 by adlabban         ###   ########.fr       */
+/*   Updated: 2025/08/10 17:05:49 by adlabban         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <fcntl.h>
-int main(int ac, char **av)
+
+int	main(int ac, char **av)
 {
-	char *str;
-	int fd;
+	char	*str;
+	int		fd;
 
 	if (ac == 2)
 	{
